@@ -1,13 +1,21 @@
 package com.example.contactapp;
 
+import static java.security.AccessController.getContext;
+
 import android.content.Context;
+import android.graphics.Color;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -24,12 +32,13 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         this.context = context;
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder{ //temos que estender para o recycleView e ele gera um construtor
+    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{ //temos que estender para o recycleView e ele gera um construtor
         // defenindo os elementos que ficarao no lista de contato
         ImageView img_contato;
         TextView nome_contato;
         TextView numero_contato;
         TextView email_contato;
+        ImageButton img_fav;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView); //gera sozinho tem haver a classe parent
@@ -38,7 +47,44 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             nome_contato = itemView.findViewById(R.id.contato_nome);
             numero_contato = itemView.findViewById(R.id.contato_numero);
             email_contato = itemView.findViewById(R.id.contato_email);
+            img_fav = itemView.findViewById(R.id.fav_contato);
+
+            itemView.setOnCreateContextMenuListener(this);
+            img_fav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                   // img_fav.setBackgroundColor(Color.parseColor(" #ff0000"));
+                    Toast.makeText(context, "Contato adicionado aos Favoritos", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            menu.add(0,itemView.getId(),0,"Chamar").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    Toast.makeText(context, "Voce clicou para fazer uma chamada", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+            menu.add(0,itemView.getId(),0,"Enviar sms").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    Toast.makeText(context, "Voce clicou para enviar um sms", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+            menu.add(0,itemView.getId(),0,"Apagar o contato").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    listaContatos.remove(getLayoutPosition());
+                    notifyDataSetChanged();
+                    return false;
+                }
+            });
+
+        }
+
     }
     //metodos que o metodo (public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.MyViewHolder>)pede
     @NonNull
@@ -62,7 +108,8 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         holder.nome_contato.setText(listaContatos.get(position).getNome()); //ele apanha o texto na  lista de contatos na posicao nome
         holder.numero_contato.setText(String.valueOf(listaContatos.get(position).getNumero())); //String.valueOf porque numero é um inteiro e um inteiro nao pode ser usado no setText
         holder.email_contato.setText(listaContatos.get(position).getEmail());
-        Glide.with(this.context).load("https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper-thumbnail.png").into(holder.img_contato); //into e onde queremos por a imagem
+        Glide.with(this.context).load("https://www.pngall.com/wp-content/uploads/12/Avatar-No-Background.png").into(holder.img_contato); //into e onde queremos por a imagem
+    
     }
     //refere-se ao numero de itens que vou colocar na minha lista
     @Override
